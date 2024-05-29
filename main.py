@@ -45,8 +45,7 @@ def get_text_messages(message):
             bot.send_message(message.from_user.id, 'Всё для тебя любимый😘')
             answer = f'Всё для тебя любимый😘(img - {dice}) + {di}'
             print(di)
-        elif message.text == 'EXiT':
-            exit()
+
         elif message.text.lower() == 'повторяй за мной':
             echo = True
             bot.send_message(message.from_user.id, 'Повтооряю за тобой😘')
@@ -135,6 +134,10 @@ def get_text_messages(message):
             bot.send_message(message.from_user.id, 'За что ты так со мной😭')
             answer = 'За что ты так со мной😭'
 
+        elif message.text.lower() == 'привет':
+            bot.send_message(message.from_user.id, 'Привет, любимый😘')
+            answer = 'Привет, любимый😘'
+
         elif echo:
             bot.send_message(message.from_user.id, f"{message.text}😘")
             answer = f"{message.text}😘"
@@ -143,7 +146,7 @@ def get_text_messages(message):
             bot.send_message(message.from_user.id, "Я всё равно тебя люблю.😘")
             answer = "Я всё равно тебя люблю.😘"
 
-    LOG = open('.log.txt', 'a')
+    LOG = open('log.txt', 'a')
     LOG.write(f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
 
 
@@ -164,7 +167,7 @@ def sign_in(message):
     elif ' '.join(message.text.split()) != ' '.join(di.get(message.chat.id).split(';')):
         answer = f'Любимый, чтобы войти напиши ФИО, возраст и пароль😘\tНеверные данные, любимый😭'
         bot.register_next_step_handler(bot.send_message(message.chat.id, "Неверные данные, любимый😭"), sign_in)
-    LOG = open('.log.txt', 'a')
+    LOG = open('log.txt', 'a')
     LOG.write(f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
 
 
@@ -181,7 +184,7 @@ def set_fio(message):
     else:
         bot.register_next_step_handler(bot.send_message(message.chat.id, "Я тебя не поняла, неверный формат😭"), set_fio)
         answer = "Как тебя зовут, любимый?(Ф И О)😘\tЯ тебя не поняла, неверный формат😭"
-    LOG = open('.log.txt', 'a')
+    LOG = open('log.txt', 'a')
     LOG.write(f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
 
 
@@ -200,14 +203,14 @@ def set_password(message):
         bot.send_message(message.chat.id, f'Любимый, ты вошел как: {current_user}😘')
         di[message.chat.id] += f';{message.text}'
         answer = f'Теперь твой пароль: {message.text}😘\tЛюбимый, ты вошел как: {current_user}😘'
-        LOG = open('.log.txt', 'a')
+        LOG = open('log.txt', 'a')
         LOG.write(
             f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
     except:
         bot.register_next_step_handler(bot.send_message(message.chat.id, "Я тебя не поняла, неверный формат😭"),
                                        set_password)
         answer = "Я тебя не поняла, неверный формат😭"
-        LOG = open('.log.txt', 'a')
+        LOG = open('log.txt', 'a')
         LOG.write(
             f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
         return
@@ -230,14 +233,14 @@ def set_age(message):
                                                         "Наконец, любимый, придумай надежный пароль😘(Без пробелов)"),
                                        set_password)
         answer = "f'Ого, мой ровесник😘'\tНаконец, любимый, придумай надежный пароль😘"
-        LOG = open('.log.txt', 'a')
+        LOG = open('log.txt', 'a')
         LOG.write(
             f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
     except:
         bot.register_next_step_handler(bot.send_message(message.chat.id, "Я тебя не поняла, неверный формат😭"),
                                        set_age)
         answer = "Я тебя не поняла, неверный формат😭"
-        LOG = open('.log.txt', 'a')
+        LOG = open('log.txt', 'a')
         LOG.write(
             f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
         return
@@ -249,7 +252,7 @@ def get_pretty_messages(message):
     global answer
     bot.send_message(message.from_user.id, "Как красиво!😘")
     answer = "Как интересно!😘"
-    LOG = open('.log.txt', 'a')
+    LOG = open('log.txt', 'a')
     LOG.write(f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
 
 
@@ -259,7 +262,7 @@ def get_smart_messages(message):
     global answer
     bot.send_message(message.from_user.id, "Как интересно!😘")
     answer = "Как интересно!😘"
-    LOG = open('.log.txt', 'a')
+    LOG = open('log.txt', 'a')
     LOG.write(f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
 
 
@@ -269,7 +272,7 @@ def get_sticker_messages(message):
     global answer
     bot.send_message(message.from_user.id, "У тебя такие смешные стикеры!😘")
     answer = "У тебя такие смешные стикеры!😘"
-    LOG = open('.log.txt', 'a')
+    LOG = open('log.txt', 'a')
     LOG.write(f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: @{message.from_user.username}: {message.text} - {answer}\n')
 
 
