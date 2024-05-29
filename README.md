@@ -1,2 +1,3 @@
-# GF_tg_bot
-first tg bot using pytelegrambotapi
+first tg bot on python with pytelegrambot 
+AI_GF - https://t.me/my_Ai_GF416_bot
+@my_Ai_GF416_bot
