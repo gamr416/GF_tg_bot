@@ -4,11 +4,13 @@ from random import randint
 from datetime import datetime as dt
 from telebot import types
 
+
 TOKEN = '7498702289:AAF6w2T83E1ub2iEiZBZC5BJ7jWX51QWzII'
 bot = telebot.TeleBot(TOKEN)
 echo = False
 current_user = None
 di = {}
+img_di = {}
 answer = ''
 LOG = None
 
@@ -36,24 +38,19 @@ def get_text_messages(message):
     global answer
     answer = ''
     if '/' != message.text[0]:
-
         if message.text.upper() == 'GIMME YOURSELF':
-            dice = randint(1, 25)
-            photo = open(f'img/img{dice}.jpg', 'rb')
-            bot.send_photo(message.chat.id, photo)
-            photo.close()
             bot.send_message(message.from_user.id, 'Всё для тебя любимый😘')
-            answer = f'Всё для тебя любимый😘(img - {dice}) + {di}'
+            answer = f'Всё для тебя любимый😘 + {di}'
             print(di)
 
         elif message.text.lower() == 'повторяй за мной':
             echo = True
-            bot.send_message(message.from_user.id, 'Повтооряю за тобой😘')
+            bot.send_message(message.from_user.id, 'Повторяю за тобой😘')
             answer = 'Повтооряю за тобой😘'
 
         elif message.text.lower() == 'не повторяй за мной':
             echo = False
-            bot.send_message(message.from_user.id, 'Повтооряю за тобой😘')
+            bot.send_message(message.from_user.id, 'не повторяю за тобой😘')
             answer = 'Но любимый, ты уже зареган, если хочешь перерегаться напиши: "хочу перерегаться"😘'
 
         elif message.text.lower() == 'хочу зарегаться':
@@ -64,16 +61,6 @@ def get_text_messages(message):
                 bot.send_message(message.from_user.id,
                                  'Но любимый, ты уже зареган, если хочешь перерегаться напиши: "хочу перерегаться"😘')
                 answer = 'Но любимый, ты уже зареган, если хочешь перерегаться напиши: "хочу перерегаться"😘'
-
-        elif message.text.lower() == 'хочу перерегаться':
-            if di.get(message.chat.id) and current_user:
-                bot.register_next_step_handler(
-                    bot.send_message(message.chat.id, "Как тебя зовут по новому, любимый?(Ф И О)😘"), set_fio)
-                answer = 'Как тебя зовут по новому, любимый?(Ф И О)😘'
-            else:
-                bot.send_message(message.from_user.id,
-                                 'Но любимый, ты ещё не зареган, если хочешь заререгаться напиши: "хочу зарегаться"😘')
-                answer = 'Но любимый, ты ещё не зареган, если хочешь заререгаться напиши: "хочу зарегаться"😘'
 
         elif message.text.lower() == 'хочу стикер':
             dice = randint(1, 10)
@@ -86,6 +73,17 @@ def get_text_messages(message):
         elif message.text.lower() == 'хочу фотку':
             if current_user:
                 dice = randint(1, 25)
+                if not img_di.get(message.chat.id):
+                    img_di[message.chat.id] = []
+                while dice in img_di.get(message.chat.id):
+                    dice = randint(1, 25)
+                if not img_di.get(message.chat.id):
+                    img_di[message.chat.id] = [dice]
+                else:
+                    img_di[message.chat.id].append(dice)
+                if len(img_di.get(message.chat.id)) >= 25:
+                    img_di[message.chat.id] = []
+                print(dice, img_di)
                 photo = open(f'img/img{dice}.jpg', 'rb')
                 bot.send_photo(message.chat.id, photo)
                 photo.close()
@@ -138,6 +136,10 @@ def get_text_messages(message):
             bot.send_message(message.from_user.id, 'Привет, любимый😘')
             answer = 'Привет, любимый😘'
 
+        elif message.text.lower() == 'доброе утро':
+            bot.send_message(message.from_user.id, 'Доброе, любимый😘')
+            answer = 'Доброе, любимый😘'
+
         elif echo:
             bot.send_message(message.from_user.id, f"{message.text}😘")
             answer = f"{message.text}😘"
@@ -186,7 +188,6 @@ def set_fio(message):
         answer = "Как тебя зовут, любимый?(Ф И О)😘\tЯ тебя не поняла, неверный формат😭"
     LOG = open('log.txt', 'a')
     LOG.write(f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
-
 
 
 @bot.message_handler(content_types=['text'])
@@ -270,8 +271,8 @@ def get_smart_messages(message):
 def get_sticker_messages(message):
     global LOG
     global answer
-    bot.send_message(message.from_user.id, "У тебя такие смешные стикеры!😘")
-    answer = "У тебя такие смешные стикеры!😘"
+    bot.send_message(message.from_user.id, "У тебя такие классные стикеры!😘")
+    answer = "У тебя такие классные стикеры!😘"
     LOG = open('log.txt', 'a')
     LOG.write(f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: @{message.from_user.username}: {message.text} - {answer}\n')
 
