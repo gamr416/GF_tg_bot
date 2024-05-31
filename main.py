@@ -2,6 +2,7 @@ import telebot
 
 from random import randint
 from datetime import datetime as dt
+from database import DB
 from telebot import types
 
 
@@ -13,7 +14,10 @@ di = {}
 img_di = {}
 answer = ''
 LOG = None
-
+name = ''
+age = 0
+password = ''
+DB = DB()
 
 @bot.message_handler(commands=['start', 'help'])
 def getting_started(message):
@@ -83,7 +87,6 @@ def get_text_messages(message):
                     img_di[message.chat.id].append(dice)
                 if len(img_di.get(message.chat.id)) >= 25:
                     img_di[message.chat.id] = []
-                print(dice, img_di)
                 photo = open(f'img/img{dice}.jpg', 'rb')
                 bot.send_photo(message.chat.id, photo)
                 photo.close()
@@ -91,7 +94,7 @@ def get_text_messages(message):
                 answer = f'Надеюсь, я тебе нравоюсь, любимый😘(img - {dice})'
             else:
                 bot.send_message(message.from_user.id, 'Любимый, ты ещё не вошел в аккаунт😘')
-                answer = 'Любимый, ты еще не вошел в аккаунт я ничего о тебе не знаю😭'
+                answer = 'Любимый, ты еще не вошел в аккаунт😭'
 
         elif message.text.lower() == 'расскажи обо мне':
             if current_user:
@@ -112,7 +115,7 @@ def get_text_messages(message):
                 answer = 'Сначала выйди, любимый😘'
             else:
                 bot.register_next_step_handler(
-                    bot.send_message(message.chat.id, "Любимый, чтобы войти напиши ФИО, возраст и пароль😘"),
+                    bot.send_message(message.chat.id, "Любимый, чтобы войти напиши ФИО и пароль😘"),
                     sign_in)
 
         elif message.text.lower() == 'дай выйти':
@@ -157,17 +160,15 @@ def sign_in(message):
     global answer
     global current_user
     global LOG
-    print(' '.join(message.text.split()), ' '.join(di.get(message.chat.id).split(';')))
     if ' '.join(message.text.split()) == ' '.join(di.get(message.chat.id).split(';')):
-        current_user = di.get(message.chat.id)[0]
-        bot.send_message(message.from_user.id, f'Любимый, ты вошел как: {current_user}😘')
-        answer = f'Любимый, чтобы войти напиши ФИО, возраст и пароль😘\tЛюбимый, ты вошел как: {current_user}😘'
-    elif len(message.text.split()) != 5:
-        print(message.text.split())
-        answer = f'Любимый, чтобы войти напиши ФИО, возраст и пароль😘\tЯ тебя не поняла, неверный формат😭'
+        current_user = DB.sign_in(message.text.split())
+        bot.send_message(message.from_user.id, f'Любимый, ты вошел как: Пользователь {current_user}😘')
+        answer = f'Любимый, чтобы войти напиши ФИО и пароль😘\tЛюбимый, ты вошел как: Пользователь {current_user}😘'
+    elif len(message.text.split()) != 4:
+        answer = f'Любимый, чтобы войти напиши ФИО и пароль😘\tЯ тебя не поняла, неверный формат😭'
         bot.register_next_step_handler(bot.send_message(message.chat.id, "Я тебя не поняла, неверный формат😭"), sign_in)
     elif ' '.join(message.text.split()) != ' '.join(di.get(message.chat.id).split(';')):
-        answer = f'Любимый, чтобы войти напиши ФИО, возраст и пароль😘\tНеверные данные, любимый😭'
+        answer = f'Любимый, чтобы войти напиши ФИО, и пароль😘\tНеверные данные, любимый😭'
         bot.register_next_step_handler(bot.send_message(message.chat.id, "Неверные данные, любимый😭"), sign_in)
     LOG = open('log.txt', 'a')
     LOG.write(f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
@@ -177,12 +178,14 @@ def sign_in(message):
 def set_fio(message):
     global answer
     global LOG
+    global name
     if len(message.text.split()) == 3:
         bot.send_message(message.chat.id, f'У тебя такое красивое имя: {message.text}😘')
         bot.register_next_step_handler(bot.send_message(message.chat.id, 'А сколько тебе лет, любимый?😘'), set_age)
         answer = (f"Как тебя зовут, любимый?(Ф И О)😘\tУ тебя такое красивое имя: {message.text}😘"
                   f"\t А сколько тебе лет, любимый?😘")
         di[message.chat.id] = message.text
+        name = message.text
     else:
         bot.register_next_step_handler(bot.send_message(message.chat.id, "Я тебя не поняла, неверный формат😭"), set_fio)
         answer = "Как тебя зовут, любимый?(Ф И О)😘\tЯ тебя не поняла, неверный формат😭"
@@ -195,15 +198,18 @@ def set_password(message):
     global answer
     global current_user
     global LOG
-    current_user = di.get(message.chat.id).split(";")[0]
+    global name, age, password
     try:
-        str(message.text)
+        password = str(message.text)
         if len(message.text.split()) > 1:
             raise ValueError
+        print(name, age, password)
+        DB.insert_noob([name, age, password])
+        print(1)
+        current_user = DB.sign_in([name, password])
+        answer = f'Теперь твой пароль: {message.text}😘\tЛюбимый, ты вошел как: Пользователь {current_user}😘'
         bot.send_message(message.chat.id, f'Теперь твой пароль: {message.text}😘')
-        bot.send_message(message.chat.id, f'Любимый, ты вошел как: {current_user}😘')
-        di[message.chat.id] += f';{message.text}'
-        answer = f'Теперь твой пароль: {message.text}😘\tЛюбимый, ты вошел как: {current_user}😘'
+        bot.send_message(message.chat.id, f'Любимый, ты вошел как: Пользователь {current_user}😘')
         LOG = open('log.txt', 'a')
         LOG.write(
             f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
@@ -221,19 +227,21 @@ def set_password(message):
 def set_age(message):
     global answer
     global LOG
+    global age
     try:
-        age = int(message.text)
+        age_ = int(message.text)
         di[message.chat.id] += f';{message.text}'
-        if age < 18:
+        if age_ < 18:
             bot.send_message(message.chat.id, f'Ты еще такой маленький😘')
-        elif 18 <= age <= 20:
+        elif 18 <= age_ <= 20:
             bot.send_message(message.chat.id, f'Ого, мой ровесник😘')
-        elif age > 20:
+        elif age_ > 20:
             bot.send_message(message.chat.id, f'Ого, ты старше меня😘')
         bot.register_next_step_handler(bot.send_message(message.chat.id,
                                                         "Наконец, любимый, придумай надежный пароль😘(Без пробелов)"),
                                        set_password)
         answer = "f'Ого, мой ровесник😘'\tНаконец, любимый, придумай надежный пароль😘"
+        age = age_
         LOG = open('log.txt', 'a')
         LOG.write(
             f'{dt.now().strftime("%d.%m.%Y %H:%M:%S")}: {message.from_user.username}: {message.text} - {answer}\n')
