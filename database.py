@@ -16,9 +16,6 @@ class DB:
         cursor.close()
         con.close()
 
-    def delete(self):
-        pass
-
     def sign_in(self, data):
         con = sqlite3.connect('db/database')
         cursor = con.cursor()

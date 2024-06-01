@@ -19,18 +19,43 @@ age = 0
 password = ''
 DB = DB()
 
+keyboard_home = types.ReplyKeyboardMarkup(resize_keyboard=True)
+but_exit = types.KeyboardButton('дай отменить')
+but_reg = types.KeyboardButton('хочу зарегаться')
+but_profile = types.KeyboardButton('профиль')
+but_func = types.KeyboardButton('функции')
+keyboard_home.add(but_reg, but_func, but_profile, but_exit)
+
+keyboard_func = types.ReplyKeyboardMarkup(resize_keyboard=True)
+but_repeat = types.KeyboardButton('повторяй за мной')
+but_no_repeat = types.KeyboardButton('не повторяй за мной')
+but_img = types.KeyboardButton('хочу фотку')
+but_sticker = types.KeyboardButton('хочу стикер')
+keyboard_func.add(but_repeat, but_no_repeat, but_profile, but_img, but_sticker, but_exit)
+
+keyboard_acc = types.ReplyKeyboardMarkup(resize_keyboard=True)
+but_acc = types.KeyboardButton('расскажи обо мне')
+but_sign_in = types.KeyboardButton('дай войти')
+but_sign_out = types.KeyboardButton('дай выйти')
+keyboard_acc.add(but_acc, but_sign_in, but_sign_out, but_exit)
+
+keyboard_exit = types.ReplyKeyboardMarkup(resize_keyboard=True)
+keyboard_exit.add(but_exit)
+
+
 @bot.message_handler(commands=['start', 'help'])
 def getting_started(message):
     bot.send_message(message.from_user.id, """Вот мои кодовые слова😘:
+функции
 повторяй за мной
 не повторяй за мной
 хочу стикер
 хочу фотку
 хочу зарегаться
-хочу перерегаться
 расскажи обо мне
 дай войти
-дай выйти""")
+дай выйти
+профиль""")
     bot.send_message(message.from_user.id, "Скажи что-нибудь, любимый!😘")
 
 
@@ -41,6 +66,7 @@ def get_text_messages(message):
     global LOG
     global answer
     answer = ''
+
     if '/' != message.text[0]:
         if message.text.upper() == 'GIMME YOURSELF':
             bot.send_message(message.from_user.id, 'Всё для тебя любимый😘')
@@ -50,7 +76,7 @@ def get_text_messages(message):
         elif message.text.lower() == 'повторяй за мной':
             echo = True
             bot.send_message(message.from_user.id, 'Повторяю за тобой😘')
-            answer = 'Повтооряю за тобой😘'
+            answer = 'Повторяю за тобой😘'
 
         elif message.text.lower() == 'не повторяй за мной':
             echo = False
@@ -58,13 +84,8 @@ def get_text_messages(message):
             answer = 'Но любимый, ты уже зареган, если хочешь перерегаться напиши: "хочу перерегаться"😘'
 
         elif message.text.lower() == 'хочу зарегаться':
-            if not di.get(message.chat.id) and not current_user:
-                bot.register_next_step_handler(bot.send_message(message.chat.id, "Как тебя зовут, любимый?(Ф И О)😘"),
-                                               set_fio)
-            else:
-                bot.send_message(message.from_user.id,
-                                 'Но любимый, ты уже зареган, если хочешь перерегаться напиши: "хочу перерегаться"😘')
-                answer = 'Но любимый, ты уже зареган, если хочешь перерегаться напиши: "хочу перерегаться"😘'
+            bot.register_next_step_handler(bot.send_message(message.chat.id, "Как тебя зовут, любимый?(Ф И О)😘"),
+                                           set_fio)
 
         elif message.text.lower() == 'хочу стикер':
             dice = randint(1, 10)
@@ -72,7 +93,7 @@ def get_text_messages(message):
             bot.send_sticker(message.chat.id, sticker)
             sticker.close()
             bot.send_message(message.from_user.id, 'Смотри, какой забавный стикер!😘')
-            answer = 'Смотри, какой забавный стикер!😘(meme - {dice})'
+            answer = f'Смотри, какой забавный стикер!😘(meme - {dice})'
 
         elif message.text.lower() == 'хочу фотку':
             if current_user:
@@ -90,8 +111,8 @@ def get_text_messages(message):
                 photo = open(f'img/img{dice}.jpg', 'rb')
                 bot.send_photo(message.chat.id, photo)
                 photo.close()
-                bot.send_message(message.from_user.id, 'Надеюсь, я тебе нравоюсь, любимый😘')
-                answer = f'Надеюсь, я тебе нравоюсь, любимый😘(img - {dice})'
+                bot.send_message(message.from_user.id, 'Надеюсь, я тебе нравлюсь, любимый😘', reply_markup=keyboard_home)
+                answer = f'Надеюсь, я тебе нравлюсь, любимый😘(img - {dice})'
             else:
                 bot.send_message(message.from_user.id, 'Любимый, ты ещё не вошел в аккаунт😘')
                 answer = 'Любимый, ты еще не вошел в аккаунт😭'
@@ -132,7 +153,7 @@ def get_text_messages(message):
             answer = 'Сладких снов, любимый😘'
 
         elif message.text.lower() == "kys":
-            bot.send_message(message.from_user.id, 'За что ты так со мной😭')
+            bot.send_message(message.from_user.id, 'За что ты так со мной😭', )
             answer = 'За что ты так со мной😭'
 
         elif message.text.lower() == 'привет':
