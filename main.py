@@ -6,7 +6,7 @@ from database import DB
 from telebot import types
 
 
-TOKEN = '7498702289:AAF6w2T83E1ub2iEiZBZC5BJ7jWX51QWzII'
+TOKEN = ''
 bot = telebot.TeleBot(TOKEN)
 echo = False
 current_user = None
